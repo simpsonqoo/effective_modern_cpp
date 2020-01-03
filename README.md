@@ -3,4 +3,4 @@
 
 Effective Modern C++ by Scott (O'Reilly). Copyright 2015 Scott Meyers, 978-1-491-90399-5
 
-$${{{b^2}} \over {c + \sqrt a }}$$
+$$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
