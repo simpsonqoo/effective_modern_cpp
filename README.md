@@ -1,2 +1,2 @@
 # effective_modern_cpp
-written by Scott Meyers
+Effective Modern C++ by Scott (O'Reilly). Copyright 2015 Scott Meyers, 978-1-491-90399-5
