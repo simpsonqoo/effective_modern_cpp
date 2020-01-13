@@ -80,9 +80,6 @@ decltype(auto) dw = w;  //型別為Widget&
 
 e.g.
 ```cpp
-#include <iostream>
-#include <vector>
-
 auto content = ContainerAccess(std::vector<int>{3}, idx);
 ```
 
