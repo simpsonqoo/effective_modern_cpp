@@ -1,6 +1,7 @@
 decltype會將給定物件之型別回傳，且幾乎都會符合預期。而不同於樣板推導及auto，使用decltype幾乎都會回傳與原物件完全相同的型別，連前面幾個條款中樣板推導或是auto可能推導不同的型別，使用decltype都會回傳相同的型別。
 
 C++11後推出了trailing return type的語法，函式除了引數之外，也可以推導返回物件的型別。
+
 e.g.
 ```cpp
 template <typename Container, typename Index>
