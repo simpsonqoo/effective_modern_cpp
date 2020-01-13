@@ -26,7 +26,7 @@ for (std::vector<int>::iterator it = vec.begin(); it != bev.end(); ++it)
 }
 ```
 
-在沒有auto之前，我們必須明確打出每個物件的型別名，像是這裡的std::vector<int>::iterator，我們必須背起來或是特別去查才找的到，但有了auto後，一切就變得簡單
+在沒有auto之前，我們必須明確打出每個物件的型別名，像是這裡的std::vector<int>::iterator，如果是更複雜的巢狀類別，我們必須知道每一層class的名稱，這實在太麻煩了，我們必須背起來或是特別去查才找的到，但有了auto後，一切就變得簡單
 
 ```cpp
 std::vector<int> vec(100);
