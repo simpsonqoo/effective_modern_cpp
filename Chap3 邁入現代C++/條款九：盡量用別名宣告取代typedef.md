@@ -91,3 +91,24 @@ namespace
     using remove_const_t<T> = remove_const<T>::type;
 }
 ```
+
+而除了class宣告式內之外，所有使用class內部型別成員且和template paramter有相依關係的地方也都必須要加上typename。
+
+e.g.
+```cpp
+template <typename T>
+typename std::remove_cv<T>::type RemoveCv(T object)
+{
+    return object;
+}
+```
+
+但如果使用std::remove_cv_t，就不需要加上typename，因為別名宣告的關係，compiler會直接知道std::remove_cv_t是型別
+
+```cpp
+template <typename T>
+std::remove_cv_t<T> RemoveCv(T object)
+{
+    return object;
+}
+```
