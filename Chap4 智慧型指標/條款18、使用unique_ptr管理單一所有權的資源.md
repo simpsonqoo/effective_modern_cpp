@@ -67,7 +67,7 @@ auto delInvestment = [](Investment& pInvestment)
     }
 
 template <typename... Ts>
-std::unique_ptr<Investment> makeInvestment(Ts... args)
+std::unique_ptr<Investment, decltype(delInvestment)> makeInvestment(Ts... args)
 {
     std::unique_ptr<Investment, decltype(delInvestment)> pInv(nullptr, delInvestment);
 
@@ -95,7 +95,7 @@ std::unique_ptr<Investment> makeInvestment(Ts... args)
 以上實作包含以下幾點
 - 自訂刪除子，刪除子的引數並需接受原始指標才能被std::unique_ptr所接受，使用lambda expression除了表示很方便外，也比傳統函式還要來的有效率，之後會對lambda expression和函式做比較，隨後在建立std::unique_ptr時使用建立刪除子。
 - 自訂刪除子時，刪除子必須是std::unique_ptr的第二個型別參數，也就是上例中delInvestment的型別。
-- 建立Investment的std::unique_ptr的流程是先創建萬用的nullptr，再使用std::unique_ptr::reset重建Investment指標，此處不能直接使用new Stock(...)來為pInv賦值，如果這樣做會產生compiler error。
+- 建立Investment的std::unique_ptr的流程是先創建萬用的nullptr，再使用std::unique_ptr::reset重建Investment指標，此處不能直接使用new Stock(...)來為pInv賦值，如果這樣做會產生compiler error。不過，如果原始指標是作為constructor參數，是可以直接被初始化的。
 
 e.g.
 ```cpp
@@ -104,4 +104,64 @@ std::unique_ptr<int> ui(nullptr);
 //ui = p;   // 產生compiler error
 
 std::unique_ptr<int> ui1(new int(1));   // ok
+std::unique_ptr<int> ui2(p);
 ```
+
+使用C++14以上，更可以直接將回傳型別設為auto
+
+```cpp
+template <typename... Ts>
+auto makeInvestment(Ts... args)
+{
+    std::unique_ptr<Investment, decltype(delInvestment)> pInv(nullptr, delInvestment);
+
+    if (/* 需要產生Stock的條件 */)
+    {
+        pInv.reset(new Stock(std::forward<Ts>(args)...))
+    }
+
+    else if (/* 需要產生Bond的條件 */)
+    {
+        pInv.reset(new Bond(std::forward<Ts>(args)...))
+    }
+
+    else if (/* 需要產生RealEstate的條件 */)
+    {
+        pInv.reset(new RealEstate(std::forward<Ts>(args)...))
+    }
+
+    return pInv;
+}
+```
+
+而一旦使用自訂的destructor後，不同型態的destructor會有不太一樣的硬體使用資源，若是使用函式指標作為destructor，會使得std::unique_ptr大小增加1~2個word，但若是使用lambda表達式且沒有擷取任何資訊，則不會使用額外的空間。所以如果可以，使用lambda表達式會是比較好的選擇。
+
+```cpp
+auto delInvestment1 = [](Investment& pInvestment)
+    {
+        makelog(pInvestment);
+        delete pInvestment;
+    }
+
+template <typename... Ts>
+std::unique_ptr<Investment, decltype(delInvestment1)> makeInvestment(Ts... args);    型別大小與Investment*相同
+
+void delInvestment1(Investment& pInvestment)
+{
+    makelog(pInvestment);
+    delete pInvestment;
+}
+
+template <typename... Ts>
+std::unique_ptr<Investment, decltype(delInvestment2)> makeInvestment(Ts... args);    型別大小=Investment*大小+函式指標...
+```
+
+後面還有提到array和原始指標的用法，基本上std::unique_ptr<T[]>只能使用index參閱，而std::unique_ptr<T*>只能使用解參考，不過現在已經幾乎不使用array了，可以不用太在意。
+
+而std::unique_ptr還有一個最重要的應用，就是可以直接轉換成std::shared_ptr。
+
+```cpp
+std::shared_ptr<Investment> sp = makeInvestment(argument...);
+```
+
+這也是為何std::unique_ptr適用於factory設計模式，因為開發者無法得知使用者希望factory函式能夠回傳單一所有權或是共享所有權的指標，所以先提供最萬用的std::unique_ptr，給予適當的彈性，若需要時在可以轉換為std::shared_ptr。
