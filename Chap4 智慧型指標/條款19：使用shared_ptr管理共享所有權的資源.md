@@ -126,3 +126,10 @@ void Widget::process()
     ...
 }
 ```
+
+而share_from_this會去尋找this的control block並再創建std::shared_ptr後修改control block，使用時必須該物件已經有被其他的std::shared_ptr指向時才能夠使用。
+
+而由於std::shared_ptr比起原始指標或是std::unique_ptr在destructor、allocator、參考計數操作...效能都較差，但是其所提供的功能來說還是相當划算的，所以如果確定需要使用std::shared_ptr的功能，使用std::share_ptr還是必要的，但若是止想要使用單一所有權的指標，或是不太肯定需要使用哪一種指標，使用std::unique_ptr已足夠，而且要從std::unique_ptr轉換到std::shared_ptr也是很容易的。
+但是，一旦std::unique_ptr轉換到std::shared_ptr後，就無法再轉換回std::unique_ptr，轉換的方像是單行道，所以在轉換時也需要審慎考慮再做轉換。
+
+最後一件事情是，和std::unique_ptr不同，std::shared_ptr並沒辦法指向陣列，這裡一樣建議秉棄陣列的用法改使用std::vector、std::string之類的容器取而代之。
