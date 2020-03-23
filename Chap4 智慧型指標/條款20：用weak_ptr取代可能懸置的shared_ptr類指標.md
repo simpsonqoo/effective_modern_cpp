@@ -57,3 +57,13 @@ observer模式主要由subject(會改變狀態的物件)及observer(物件改變
 所以合理的設計是創在一個subject指向observer的std::weak_ptr，在通知observer之前先得知該指標是否為懸置狀態。
 
 3. 避免發生循環std::shared_ptr
+假設有A、B、C三個Widget，而A、C皆有std::shared_ptr指向B，此時，若需要有個指標由B指向A，使用哪種指標會比較好呢？
+![](https://i.imgur.com/ZKovXDD.png)
+
+1. 原始指標：當然是最差的選擇，因為就算A被清除，仍然有指標由B指向A，此時就會產生一個懸置指標
+2. std::shared_ptr：會產生A指向B而B又指向A的share_ptr循環，若C先被清除後，除了A、B本身之外，再也沒有別的指標能夠找到這兩個物件，照理來說，應該要清除這兩個物件，但是卻因為彼此只向對方，導致參考計數皆為1，無法被清除，形成memory leak，又稱為資源洩漏，也就是明明就已經沒有在使用該memory，但卻因為被佔有而無法使用。
+3. std::weak_ptr：能避免懸置指標的問題，因為當A被清除時，std::weak_ptr為過期狀態，使用前會先作檢查，無法直接解參考。而也不會有循環shared_ptr的問題，因為若A有shared_ptr作為標的，當不再有shared_ptr指向A時，還是會照樣清除A，因為weak_ptr並不會增加參考計數。
+
+不過第三種狀況其實並不常見，像是常使用指標的樹狀結構，是不可能會形成cycle的，所有的子代節點生命週期絕對不可能長過父節點，當有這種階級關係時，使用std::unique_ptr就已經很足夠了。
+
+最後，在效率方面，std::weak_ptr和std::shared_ptr是差不多的，其都含有兩個指標，一個指向物件，一個指向control block，且一樣必須要一個atomic operation內完成建構、解構、賦值等操作。而std::weak_ptr也會有自己的參考計數，只是和std::shared_ptr不相同，會有單獨給std::weak_ptr使用的參考計數，條款21會對其有詳細解釋。
