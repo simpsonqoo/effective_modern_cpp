@@ -1,0 +1,1 @@
+其實，std::move並沒有做搬移動作，std::forward並沒有做轉發動作，實際上真的甚麼事情都沒有做。兩者皆為轉型函式，std::move一定會將物件轉型為rvalue，而std::forward則是"有可能"會將物件轉型。
