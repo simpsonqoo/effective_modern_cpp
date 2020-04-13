@@ -69,3 +69,5 @@ logAndAdd(i);    // 一大串error message
 由於forwarding reference幾乎可以接受任何的引數，所以任何需要轉型才能匹配的函式都不可能被呼叫。
 
 本章後面有提到其他過載forwarding reference的情境，但是覺得這個例子已經足夠，如果有需要會再補充後面這一段。
+
+條款27我覺得C++ template中第六章、8.4節都有更詳細的說明，看那裏的章節我覺得會比較清楚，所以將會省略條款27
