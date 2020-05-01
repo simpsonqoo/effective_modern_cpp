@@ -33,3 +33,11 @@ auto func = [pw = std::make_unique<Widget>()](){...};
 ```
 
 由於初始化擷取比起之前的擷取更具有一般性，所以初始化擷取又稱為通用lambda擷取(generalized lambda capture)。
+
+如果想建立物件的reference，前面加一個&即可
+
+e.g.
+```cpp
+int i = 0;
+auto func = [&num = i](){...};
+```
